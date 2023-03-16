@@ -37,7 +37,7 @@ def showLayers(imageFromDS, model):
     img_tensor = np.expand_dims(img_tensor, axis=0)
     img_tensor /= 255.
 
-    layer_outputs = [layer.output for layer in model.layers[2:16]]
+    layer_outputs = [layer.output for layer in model.layers[:16]]
     activation_model = tf.keras.models.Model(inputs=model.input, outputs=layer_outputs)
     acts = activation_model.predict(img_tensor)
 
