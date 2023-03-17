@@ -28,8 +28,69 @@ for label in classes:
             [train_df, pd.DataFrame.from_records([{'image': f"./{DATA_SET_PATH}/{label}/{image}", 'class': label}])],
             ignore_index=True)
 
-model = tf.keras.models.load_model(NAME_MODEL)
-model.summary()
+layers = tf.keras.layers
+
+rescale = tf.keras.Sequential([
+    layers.Resizing(IMAGE_SIZE, IMAGE_SIZE),
+])
+redraw = tf.keras.Sequential([
+    layers.Lambda(lambda x: tf.image.rgb_to_grayscale(x))
+])
+data_augmentation = tf.keras.Sequential([
+    layers.RandomFlip("horizontal", seed=SEED, input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3)),
+    layers.RandomRotation(0.1, seed=SEED, fill_mode="reflect"),
+])
+
+# model = tf.keras.models.load_model(NAME_MODEL)
+model = tf.keras.models.Sequential([
+    rescale,
+    data_augmentation,
+
+    layers.Conv2D(32, (5, 5), padding="same", activation='relu'),
+    keras.layers.BatchNormalization(),
+    layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
+keras.layers.BatchNormalization(),
+    layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+    keras.layers.BatchNormalization(),
+    layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+    keras.layers.BatchNormalization(),
+    layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+    layers.MaxPooling2D((2, 2)),
+    keras.layers.BatchNormalization(),
+    #layers.Add(),
+    layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+    keras.layers.BatchNormalization(),
+layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+    keras.layers.BatchNormalization(),
+layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
+    layers.MaxPooling2D((2, 2)), # [!]
+    keras.layers.BatchNormalization(),
+#     layers.Add(),
+# layers.SeparableConv2D(728, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+
+
+
+    # layers.Conv2D(64, (3, 3), padding="same", activation='relu'),
+    # layers.MaxPooling2D((2, 2)),
+    # layers.Dropout(0.2),
+    # keras.layers.BatchNormalization(),
+    # layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+    # layers.Dropout(0.2),
+    # keras.layers.BatchNormalization(),
+
+    layers.Flatten(),
+    layers.Dropout(0.2),
+    layers.Dense(256, activation='relu', kernel_constraint=maxnorm(3)),
+    layers.Dropout(0.2),
+    keras.layers.BatchNormalization(),
+    layers.Dense(128, activation='relu'),
+    layers.Dropout(0.2),
+    keras.layers.BatchNormalization(),
+    layers.Dense(len(classes), activation="softmax")
+])
+
+# model.summary()
 
 def showLayers(imageFromDS, model):
     img = image_utils.load_img(imageFromDS, target_size=(IMAGE_SIZE, IMAGE_SIZE))
@@ -37,7 +98,7 @@ def showLayers(imageFromDS, model):
     img_tensor = np.expand_dims(img_tensor, axis=0)
     img_tensor /= 255.
 
-    layer_outputs = [layer.output for layer in model.layers[20:30]]
+    layer_outputs = [layer.output for layer in model.layers[2:20]]
     activation_model = tf.keras.models.Model(inputs=model.input, outputs=layer_outputs)
     acts = activation_model.predict(img_tensor)
 
@@ -109,4 +170,4 @@ for i in range(len(test_df)):
     plt.grid(False)
 plt.show()
 
-showLayers(test_df.iloc[4].image, model)
+showLayers(test_df.iloc[1].image, model)
