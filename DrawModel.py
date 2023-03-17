@@ -41,56 +41,57 @@ data_augmentation = tf.keras.Sequential([
     layers.RandomRotation(0.1, seed=SEED, fill_mode="reflect"),
 ])
 
-# model = tf.keras.models.load_model(NAME_MODEL)
-model = tf.keras.models.Sequential([
-    rescale,
-    data_augmentation,
+model = tf.keras.models.load_model(NAME_MODEL)
 
-    layers.Conv2D(32, (5, 5), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
-keras.layers.BatchNormalization(),
-    layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
-    layers.MaxPooling2D((2, 2)),
-    keras.layers.BatchNormalization(),
-    #layers.Add(),
-    layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
-    layers.MaxPooling2D((2, 2)), # [!]
-    keras.layers.BatchNormalization(),
-#     layers.Add(),
-# layers.SeparableConv2D(728, (3, 3), padding="same", activation='relu'),
+# model = tf.keras.models.Sequential([
+#     rescale,
+#     data_augmentation,
+#
+#     layers.Conv2D(32, (5, 5), padding="same", activation='relu'),
 #     keras.layers.BatchNormalization(),
+#     layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
+# keras.layers.BatchNormalization(),
+#     layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+#     layers.MaxPooling2D((2, 2)),
+#     keras.layers.BatchNormalization(),
+#     #layers.Add(),
+#     layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+# layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+# layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
+#     layers.MaxPooling2D((2, 2)), # [!]
+#     keras.layers.BatchNormalization(),
+# #     layers.Add(),
+# # layers.SeparableConv2D(728, (3, 3), padding="same", activation='relu'),
+# #     keras.layers.BatchNormalization(),
+#
+#
+#
+#     # layers.Conv2D(64, (3, 3), padding="same", activation='relu'),
+#     # layers.MaxPooling2D((2, 2)),
+#     # layers.Dropout(0.2),
+#     # keras.layers.BatchNormalization(),
+#     # layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+#     # layers.Dropout(0.2),
+#     # keras.layers.BatchNormalization(),
+#
+#     layers.Flatten(),
+#     layers.Dropout(0.2),
+#     layers.Dense(256, activation='relu', kernel_constraint=maxnorm(3)),
+#     layers.Dropout(0.2),
+#     keras.layers.BatchNormalization(),
+#     layers.Dense(128, activation='relu'),
+#     layers.Dropout(0.2),
+#     keras.layers.BatchNormalization(),
+#     layers.Dense(len(classes), activation="softmax")
+# ])
 
-
-
-    # layers.Conv2D(64, (3, 3), padding="same", activation='relu'),
-    # layers.MaxPooling2D((2, 2)),
-    # layers.Dropout(0.2),
-    # keras.layers.BatchNormalization(),
-    # layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
-    # layers.Dropout(0.2),
-    # keras.layers.BatchNormalization(),
-
-    layers.Flatten(),
-    layers.Dropout(0.2),
-    layers.Dense(256, activation='relu', kernel_constraint=maxnorm(3)),
-    layers.Dropout(0.2),
-    keras.layers.BatchNormalization(),
-    layers.Dense(128, activation='relu'),
-    layers.Dropout(0.2),
-    keras.layers.BatchNormalization(),
-    layers.Dense(len(classes), activation="softmax")
-])
-
-# model.summary()
+model.summary()
 
 def showLayers(imageFromDS, model):
     img = image_utils.load_img(imageFromDS, target_size=(IMAGE_SIZE, IMAGE_SIZE))
