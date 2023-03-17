@@ -37,11 +37,11 @@ def showLayers(imageFromDS, model):
     img_tensor = np.expand_dims(img_tensor, axis=0)
     img_tensor /= 255.
 
-    layer_outputs = [layer.output for layer in model.layers[:16]]
+    layer_outputs = [layer.output for layer in model.layers[20:30]]
     activation_model = tf.keras.models.Model(inputs=model.input, outputs=layer_outputs)
     acts = activation_model.predict(img_tensor)
 
-    images_per_row = 16
+    images_per_row = 32
 
     i = 1
 
@@ -84,7 +84,7 @@ def showLayers(imageFromDS, model):
     plt.show()
 
 
-showLayers(train_df.iloc[0].image, model)
+#showLayers(train_df.iloc[0].image, model)
 
 TEST_PATH = "TestDataSet"
 test_df = pd.DataFrame(columns=['image', 'class'])
@@ -109,4 +109,4 @@ for i in range(len(test_df)):
     plt.grid(False)
 plt.show()
 
-showLayers(test_df.iloc[0].image, model)
+showLayers(test_df.iloc[4].image, model)
