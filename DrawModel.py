@@ -43,6 +43,22 @@ data_augmentation = tf.keras.Sequential([
 
 model = tf.keras.models.load_model(NAME_MODEL)
 
+# # Convert the model
+# converter = tf.lite.TFLiteConverter.from_saved_model(NAME_MODEL) # path to the SavedModel directory
+# tflite_model = converter.convert()
+#
+# # Save the model.
+# with open('model.tflite', 'wb') as f:
+#   f.write(tflite_model)
+
+# tf.saved_model.save(model, "model")
+# converter = tf.lite.TFLiteConverter.from_saved_model("model")
+# tflite_model = converter.convert()
+#
+# import pathlib
+# tflite_model_file = pathlib.Path('model.tflite')
+# tflite_model_file.write_bytes(tflite_model)
+
 # model = tf.keras.models.Sequential([
 #     rescale,
 #     data_augmentation,
@@ -171,4 +187,4 @@ for i in range(len(test_df)):
     plt.grid(False)
 plt.show()
 
-showLayers(test_df.iloc[1].image, model)
+#showLayers(test_df.iloc[3].image, model)

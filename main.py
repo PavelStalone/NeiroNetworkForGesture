@@ -85,28 +85,28 @@ data_augmentation = tf.keras.Sequential([
 ])
 
 # test_model = tf.keras.models.Sequential([
+# layers.Rescaling(1. / 255, input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3)),
 #     rescale,
 #     data_augmentation,
-#
 #     layers.Conv2D(32, (5, 5), padding="same", activation='relu'),
-#     keras.layers.BatchNormalization(),
-#     layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
-#     keras.layers.BatchNormalization(),
-#     layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
-#     keras.layers.BatchNormalization(),
-#     layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
-#     keras.layers.BatchNormalization(),
-#     layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+#     #keras.layers.BatchNormalization(),
+#     # layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
+#     #keras.layers.BatchNormalization(),
+#     # layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+#     # keras.layers.BatchNormalization(),
+#     # layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+#     # keras.layers.BatchNormalization(),
+#     # layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
 #     layers.MaxPooling2D((2, 2)),
-#     keras.layers.BatchNormalization(),
+#     #keras.layers.BatchNormalization(),
 #     # layers.Add(),
-#     layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
-#     keras.layers.BatchNormalization(),
-#     layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
-#     keras.layers.BatchNormalization(),
-#     layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
-#     layers.MaxPooling2D((2, 2)),  # [!]
-#     keras.layers.BatchNormalization(),
+#     # layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+#     # keras.layers.BatchNormalization(),
+#     # layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+#     # keras.layers.BatchNormalization(),
+#     # layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
+#     # layers.MaxPooling2D((2, 2)),  # [!]
+#     # keras.layers.BatchNormalization(),
 #     #     layers.Add(),
 #     # layers.SeparableConv2D(728, (3, 3), padding="same", activation='relu'),
 #     #     keras.layers.BatchNormalization(),
@@ -120,19 +120,22 @@ data_augmentation = tf.keras.Sequential([
 #     # keras.layers.BatchNormalization(),
 #
 #     layers.Flatten(),
+#     #layers.Dropout(0.2),
+#     # layers.Dense(64, activation='relu', kernel_constraint=maxnorm(3)),
+#     # layers.Dropout(0.2),
+#     #keras.layers.BatchNormalization(),
+#     layers.Dense(32, activation='relu'),
 #     layers.Dropout(0.2),
-#     layers.Dense(256, activation='relu', kernel_constraint=maxnorm(3)),
-#     layers.Dropout(0.2),
-#     keras.layers.BatchNormalization(),
-#     layers.Dense(128, activation='relu'),
-#     layers.Dropout(0.2),
-#     keras.layers.BatchNormalization(),
+#     #keras.layers.BatchNormalization(),
 #     layers.Dense(len(classes), activation="softmax")
 # ])
 #
 # opt = keras.optimizers.Adadelta(learning_rate=0.01)
 # test_model.compile(loss='categorical_crossentropy', optimizer=opt,
 #                    metrics=['acc'])
+#
+# test_model.summary()
+#
 # history = test_model.fit(train_generator, epochs=1, validation_data=val_generator)
 #
 # test_model.save(NAME_MODEL)
@@ -142,11 +145,13 @@ from keras.applications.xception import Xception
 xception = Xception(include_top=False, input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), classes=len(classes))
 xception.trainable = False
 last_layer = xception.layers[-1].output
+
 x = GlobalAveragePooling2D()(last_layer)
 x = Dense(len(classes), activation='softmax')(x)
 model = Model(xception.inputs, x)
 
 model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.RMSprop(learning_rate=0.001), metrics=['acc'])
+
 history = model.fit(train_generator, epochs=2, validation_data=val_generator)
 
 model.save(NAME_MODEL)
