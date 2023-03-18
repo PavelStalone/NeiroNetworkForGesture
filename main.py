@@ -14,10 +14,10 @@ from tensorflow import keras
 from keras.constraints import maxnorm
 
 IMAGE_SIZE = 255
-BATCH_SIZE = 8
+BATCH_SIZE = 32
 AUTOTUNE = tf.data.AUTOTUNE
 SEED = 321
-DATA_SET_PATH = "NewData"
+DATA_SET_PATH = "DataSetFromVideo"
 NAME_MODEL = "TestModel"
 TEST_PATH = "TestDataSet"
 
@@ -34,12 +34,12 @@ for image in os.listdir(TEST_PATH):
 
 for label in classes:
     images = os.listdir(f"{DATA_SET_PATH}/{label}")
-    for image in images[:-100]:
+    for image in images[:-213]:
         train_df = pd.concat(
             [train_df, pd.DataFrame.from_records([{'image': f"./{DATA_SET_PATH}/{label}/{image}", 'class': label}])],
             ignore_index=True)
 
-    for image in images[-100:]:
+    for image in images[-213:]:
         val_df = pd.concat(
             [val_df, pd.DataFrame.from_records([{'image': f"./{DATA_SET_PATH}/{label}/{image}", 'class': label}])],
             ignore_index=True)
@@ -47,22 +47,29 @@ for label in classes:
 print(train_df.head())
 
 train_datagen = ImageDataGenerator(
-    rotation_range=10,
+    rotation_range=5,
     width_shift_range=0.2,
     height_shift_range=0.2,
     shear_range=0.2,
-    zoom_range=0.2,
+    zoom_range=0.1,
     horizontal_flip=True,
     rescale=1 / 255,
 )
 
 val_datagen = ImageDataGenerator(
+    horizontal_flip=True,
     rescale=1 / 255
 )
 
-train_generator = train_datagen.flow_from_dataframe(train_df, x_col='image', y_col='class', classes=classes,
+train_generator = train_datagen.flow_from_dataframe(train_df, x_col='image',
+                                                    y_col='class',
+                                                    classes=classes,
+                                                    shuffle=True,
                                                     batch_size=BATCH_SIZE)
-val_generator = val_datagen.flow_from_dataframe(val_df, x_col='image', y_col='class', classes=classes,
+val_generator = val_datagen.flow_from_dataframe(val_df, x_col='image',
+                                                y_col='class',
+                                                classes=classes,
+                                                shuffle=True,
                                                 batch_size=BATCH_SIZE)
 layers = tf.keras.layers
 
@@ -77,73 +84,72 @@ data_augmentation = tf.keras.Sequential([
     layers.RandomRotation(0.1, seed=SEED, fill_mode="reflect"),
 ])
 
-test_model = tf.keras.models.Sequential([
-    rescale,
-    data_augmentation,
-
-    layers.Conv2D(32, (5, 5), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
-    layers.MaxPooling2D((2, 2)),
-    keras.layers.BatchNormalization(),
-    # layers.Add(),
-    layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
-    keras.layers.BatchNormalization(),
-    layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
-    layers.MaxPooling2D((2, 2)),  # [!]
-    keras.layers.BatchNormalization(),
-    #     layers.Add(),
-    # layers.SeparableConv2D(728, (3, 3), padding="same", activation='relu'),
-    #     keras.layers.BatchNormalization(),
-
-    # layers.Conv2D(64, (3, 3), padding="same", activation='relu'),
-    # layers.MaxPooling2D((2, 2)),
-    # layers.Dropout(0.2),
-    # keras.layers.BatchNormalization(),
-    # layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
-    # layers.Dropout(0.2),
-    # keras.layers.BatchNormalization(),
-
-    layers.Flatten(),
-    layers.Dropout(0.2),
-    layers.Dense(256, activation='relu', kernel_constraint=maxnorm(3)),
-    layers.Dropout(0.2),
-    keras.layers.BatchNormalization(),
-    layers.Dense(128, activation='relu'),
-    layers.Dropout(0.2),
-    keras.layers.BatchNormalization(),
-    layers.Dense(len(classes), activation="softmax")
-])
-
-opt = keras.optimizers.Adadelta(learning_rate=0.01)
-test_model.compile(loss='categorical_crossentropy', optimizer=opt,
-                   metrics=['acc'])
-history = test_model.fit(train_generator, epochs=1, validation_data=val_generator)
-
-test_model.save(NAME_MODEL)
-
-# from keras.applications.xception import Xception
+# test_model = tf.keras.models.Sequential([
+#     rescale,
+#     data_augmentation,
 #
-# xception = Xception(include_top=False, input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), classes=len(classes))
-# xception.trainable = False
-# last_layer = xception.layers[-1].output
-# x = GlobalAveragePooling2D()(last_layer)
-# x = Dense(len(classes), activation='softmax')(x)
-# model = Model(xception.inputs, x)
+#     layers.Conv2D(32, (5, 5), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.Conv2D(64, (5, 5), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.SeparableConv2D(12, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+#     layers.MaxPooling2D((2, 2)),
+#     keras.layers.BatchNormalization(),
+#     # layers.Add(),
+#     layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.SeparableConv2D(256, (3, 3), padding="same", activation='relu'),
+#     keras.layers.BatchNormalization(),
+#     layers.Conv2D(256, (3, 3), padding="same", activation='relu'),
+#     layers.MaxPooling2D((2, 2)),  # [!]
+#     keras.layers.BatchNormalization(),
+#     #     layers.Add(),
+#     # layers.SeparableConv2D(728, (3, 3), padding="same", activation='relu'),
+#     #     keras.layers.BatchNormalization(),
 #
-# model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.RMSprop(learning_rate=0.01), metrics=['acc'])
-# history = model.fit(train_generator, epochs=1, validation_data=val_generator)
+#     # layers.Conv2D(64, (3, 3), padding="same", activation='relu'),
+#     # layers.MaxPooling2D((2, 2)),
+#     # layers.Dropout(0.2),
+#     # keras.layers.BatchNormalization(),
+#     # layers.Conv2D(128, (3, 3), padding="same", activation='relu'),
+#     # layers.Dropout(0.2),
+#     # keras.layers.BatchNormalization(),
 #
-# model.save(NAME_MODEL)
+#     layers.Flatten(),
+#     layers.Dropout(0.2),
+#     layers.Dense(256, activation='relu', kernel_constraint=maxnorm(3)),
+#     layers.Dropout(0.2),
+#     keras.layers.BatchNormalization(),
+#     layers.Dense(128, activation='relu'),
+#     layers.Dropout(0.2),
+#     keras.layers.BatchNormalization(),
+#     layers.Dense(len(classes), activation="softmax")
+# ])
+#
+# opt = keras.optimizers.Adadelta(learning_rate=0.01)
+# test_model.compile(loss='categorical_crossentropy', optimizer=opt,
+#                    metrics=['acc'])
+# history = test_model.fit(train_generator, epochs=1, validation_data=val_generator)
+#
+# test_model.save(NAME_MODEL)
 
+from keras.applications.xception import Xception
+
+xception = Xception(include_top=False, input_shape=(IMAGE_SIZE, IMAGE_SIZE, 3), classes=len(classes))
+xception.trainable = False
+last_layer = xception.layers[-1].output
+x = GlobalAveragePooling2D()(last_layer)
+x = Dense(len(classes), activation='softmax')(x)
+model = Model(xception.inputs, x)
+
+model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.RMSprop(learning_rate=0.001), metrics=['acc'])
+history = model.fit(train_generator, epochs=2, validation_data=val_generator)
+
+model.save(NAME_MODEL)
 
 IMAGE_IN_ROW = 5
 for i in range(len(test_df)):
@@ -152,7 +158,7 @@ for i in range(len(test_df)):
     img_tensor = image_utils.img_to_array(img)
     img_tensor = np.expand_dims(img_tensor, axis=0)
     img_tensor /= 255.
-    prediction = test_model.predict(img_tensor)
+    prediction = model.predict(img_tensor)
 
     plt.subplot(math.ceil(len(test_df) / IMAGE_IN_ROW), IMAGE_IN_ROW, i + 1)
     plt.imshow(img)

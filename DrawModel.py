@@ -99,11 +99,11 @@ def showLayers(imageFromDS, model):
     img_tensor = np.expand_dims(img_tensor, axis=0)
     img_tensor /= 255.
 
-    layer_outputs = [layer.output for layer in model.layers[2:20]]
+    layer_outputs = [layer.output for layer in model.layers[:5]]
     activation_model = tf.keras.models.Model(inputs=model.input, outputs=layer_outputs)
     acts = activation_model.predict(img_tensor)
 
-    images_per_row = 32
+    images_per_row = 20
 
     i = 1
 
