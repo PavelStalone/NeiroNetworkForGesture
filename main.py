@@ -150,9 +150,9 @@ x = GlobalAveragePooling2D()(last_layer)
 x = Dense(len(classes), activation='softmax')(x)
 model = Model(xception.inputs, x)
 
-model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.RMSprop(learning_rate=0.001), metrics=['acc'])
+model.compile(loss='categorical_crossentropy', optimizer=keras.optimizers.Adam(learning_rate=0.001), metrics=['acc'])
 
-history = model.fit(train_generator, epochs=2, validation_data=val_generator)
+history = model.fit(train_generator, epochs=4, validation_data=val_generator)
 
 model.save(NAME_MODEL)
 

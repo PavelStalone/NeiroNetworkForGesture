@@ -4,18 +4,18 @@ from tflite_support import metadata
 
 ObjectDetectorWriter = object_detector.MetadataWriter
 # _MODEL_PATH = "yolo_without_metadata.tflite"
-_MODEL_PATH = "model.tflite"
+_MODEL_PATH = "VGG16.tflite"
 # Task Library expects label files that are in the same format as the one below.
 _LABEL_FILE = "label"
 # _SAVE_TO_PATH = "yolo_with_metadata.tflite"
-_SAVE_TO_PATH = "model_with_metadata.tflite"
+_SAVE_TO_PATH = "VGG16_with_MetaData.tflite"
 # Normalization parameters is required when reprocessing the image. It is
 # optional if the image pixel values are in range of [0, 255] and the input
 # tensor is quantized to uint8. See the introduction for normalization and
 # quantization parameters below for more details.
 # https://www.tensorflow.org/lite/convert/metadata#normalization_and_quantization_parameters)
-_INPUT_NORM_MEAN = 127.5
-_INPUT_NORM_STD = 127.5
+_INPUT_NORM_MEAN = 255
+_INPUT_NORM_STD = 255
 
 # Create the metadata writer.
 writer = ObjectDetectorWriter.create_for_inference(

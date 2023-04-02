@@ -17,7 +17,8 @@ BATCH_SIZE = 8
 AUTOTUNE = tf.data.AUTOTUNE
 SEED = 321
 DATA_SET_PATH = "NewData"
-NAME_MODEL = "TestModel"
+NAME_MODEL = "VGG16"
+NAME_MODEL_TFLITE = "VGG16"
 
 classes = os.listdir(DATA_SET_PATH)
 train_df = pd.DataFrame(columns=['image', 'class'])
@@ -43,13 +44,13 @@ data_augmentation = tf.keras.Sequential([
 
 model = tf.keras.models.load_model(NAME_MODEL)
 
-# # Convert the model
-# converter = tf.lite.TFLiteConverter.from_saved_model(NAME_MODEL) # path to the SavedModel directory
-# tflite_model = converter.convert()
-#
-# # Save the model.
-# with open('model.tflite', 'wb') as f:
-#   f.write(tflite_model)
+# Convert the model
+converter = tf.lite.TFLiteConverter.from_saved_model(NAME_MODEL) # path to the SavedModel directory
+tflite_model = converter.convert()
+
+# Save the model.
+with open(f'{NAME_MODEL_TFLITE}.tflite', 'wb') as f:
+  f.write(tflite_model)
 
 # tf.saved_model.save(model, "model")
 # converter = tf.lite.TFLiteConverter.from_saved_model("model")
@@ -115,7 +116,7 @@ def showLayers(imageFromDS, model):
     img_tensor = np.expand_dims(img_tensor, axis=0)
     img_tensor /= 255.
 
-    layer_outputs = [layer.output for layer in model.layers[:5]]
+    layer_outputs = [layer.output for layer in model.layers[:10]]
     activation_model = tf.keras.models.Model(inputs=model.input, outputs=layer_outputs)
     acts = activation_model.predict(img_tensor)
 
@@ -170,6 +171,8 @@ for image in os.listdir(TEST_PATH):
     test_df = pd.concat([test_df, pd.DataFrame.from_records([{'image': f"./{TEST_PATH}/{image}", 'class': image}])],
                         ignore_index=True)
 
+testClasses = ['А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ж', 'З', 'И', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Ь', 'Ы', 'Э', 'Ю', 'Я']
+
 IMAGE_IN_ROW = 5
 plt.figure(figsize=(10,10))
 for i in range(len(test_df)):
@@ -187,4 +190,4 @@ for i in range(len(test_df)):
     plt.grid(False)
 plt.show()
 
-#showLayers(test_df.iloc[3].image, model)
+#showLayers(test_df.iloc[4].image, model)
